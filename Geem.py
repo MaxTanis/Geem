@@ -2,6 +2,12 @@
 
 import time
 
+player_data = {
+    "name" : "",
+    "location": "You are in the middle of a desert. You don't know where to go",
+    "location_name" : "starting room",
+}
+
 def help_file():
     print("--------------------------")
     print("During this interactive game you will be exploring different places.")
@@ -19,13 +25,23 @@ def help_file():
     input()
     print("--------------------------")
 
+
+print("Welcome to the game.")
+time.sleep(1)
 def introduction ():
     name = input("What is your name?: ")
     if len(name) < 1:
         print("Please enter a name.")
+        introduction()
     else:
-        print("Hello" , name , "you are dropped in the middle of a desert")
-
+        player_data["name"] = name
 introduction()
 
+print("Welcome, " + str(player_data["name"]))
+help_file()
+print(str(player_data["name"]) + ",")
+print("you have been dropped in the middle of a desert.")
+print("You don't have anything with you...")
+print("You're hungry and thirsty.")
+print("You can go to each direction, however not all directions are good options...")
 
