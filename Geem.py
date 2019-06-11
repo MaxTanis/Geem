@@ -1,4 +1,4 @@
-#wordt aan het begin laten zien en elke keer als de speler "help" typt
+
 
 import time
 
@@ -6,8 +6,9 @@ player_data = {
     "name" : "",
     "location": "You are in the middle of a desert. You don't know where to go",
     "location_name" : "starting room",
-}
 
+}
+#wordt aan het begin laten zien en elke keer als de speler "help" typt
 def help_file():
     print("--------------------------")
     print("During this interactive game you will be exploring different places.")
@@ -21,9 +22,10 @@ def help_file():
     print("If you need a description where you are enter 'location'.")
     time.sleep(1)
     print("To see this introduction again type 'help'.")
+    time.sleep(1)
     print("When you are ready, please press ENTER.")
-    input()
     print("--------------------------")
+    input()
 
 
 print("Welcome to the game.")
@@ -45,3 +47,18 @@ print("You don't have anything with you...")
 print("You're hungry and thirsty.")
 print("You can go to each direction, however not all directions are good options...")
 
+def game():
+    player_input = input("Where do you want to go?")
+    if player_input == "location":
+        current_location = player_data["location"]
+        print(str(current_location))
+        game()
+    elif player_input == "help":
+        help_file()
+        game()
+    elif player_input != "n" or "N" or "e" or "E" or "S" or "s" or "w" or "W" or "location" or "help":
+        print("Sorry try again!")
+        game()
+
+
+game()
