@@ -9,19 +9,29 @@ class locatie:
         self.naam = naam
 
 #locaties voor het spel
-locaties = [ [locatie("hallo"), locatie("0,1"), locatie("0,2"), locatie("0,3"), locatie("0,4"), locatie("0,5")],
+locaties = [ [locatie("0,0"), locatie("0,1"), locatie("0,2"), locatie("0,3"), locatie("0,4"), locatie("0,5")],
              [locatie("1,0"), locatie("1,1"), locatie("1,2"), locatie("1,3"), locatie("1,4"), locatie("1,5")],
              [locatie("2,0"), locatie("2,1"), locatie("2,2"), locatie("2,3"), locatie("2,4"), locatie("2,5")],
              [locatie("3,0"), locatie("3,1"), locatie("3,2"), locatie("3,3"), locatie("3,4"), locatie("3,5")],
              [locatie("4,0"), locatie("4,1"), locatie("4,2"), locatie("4,3"), locatie("4,4"), locatie("4,5")],
            ]
 
-
 player_data = {
     "name" : "",
     "location": locaties[0][0],
     "location_name" : "starting room",
 }
+
+
+class locatie:
+    locatie = player_data["location"]
+
+    def __init__(self, n, e, s, w):
+        self.n = north
+        self.e = east
+        self.s = south
+        self.w = west
+
 
 
 
@@ -66,24 +76,31 @@ print("You don't have anything with you...")
 print("You're hungry and thirsty.")
 print("You can go to each direction, however not all directions are good options...")
 
-def game():
-    print(locaties[0][0])
-    player_input = input("Where do you want to go?")
 
-    # location help en directions
-    if player_input == "location":
-        current_location = player_data["location"]
-        print(str(current_location))
+def game():
+    control = input("Where do you want to go?")
+    control = control.lower()
+    if control == "n":
+        (player_data["location"]) = locaties[0+1][0]
         game()
-    elif player_input == "help":
+    elif control == "e":
+        (player_data["location"]) = locaties[0][0+1]
+        game()
+    elif control == "s":
+        (player_data["location"]) = locaties[0-1][0]
+        game()
+    elif control == "w":
+        (player_data["location"]) = locaties[0][0-1]
+        game()
+    elif control == "help":
         help_file()
         game()
-    elif player_input == "quit":
-        quit()
-    else:
-        print("Sorry try again!")
+    elif control == "location":
+        print(str(player_data["location"]))
         game()
-
-
+    else:
+        print("That is not an option")
+        game()
 game()
+
 
