@@ -98,6 +98,13 @@ def game():
     elif control == "location":
         print(str(player_data["location"]))
         game()
+    elif control == "quit":
+        quit = input("Are you sure you want to stop?")
+        quit = quit.lower()
+        if quit == "yes":
+            sys.exit()
+        if quit == "no":
+            game()
     else:
         print("That is not an option")
         game()
