@@ -1,4 +1,3 @@
-
 import time
 
 current_y = 0
@@ -9,39 +8,91 @@ max_y = 4
 min_x = 0
 min_y = 0
 
-class locatie:
-    naam = ""
+class location:
+    name = ""
+    discription = ""
 
-    def __init__(self, naam):
-        self.naam = naam
+    north = False
+    east = False
+    south = False
+    west = False
 
-#locaties voor het spel
-locaties = [ [locatie("0,0"), locatie("1,0"), locatie("2,0"), locatie("3,0"), locatie("4,0"), locatie("5,0")],
-             [locatie("0,1"), locatie("1,1"), locatie("2,1"), locatie("3,1"), locatie("4,1"), locatie("5,1")],
-             [locatie("0,2"), locatie("1,2"), locatie("2,2"), locatie("3,2"), locatie("4,2"), locatie("5,2")],
-             [locatie("0,3"), locatie("1,3"), locatie("2,3"), locatie("3,3"), locatie("4,3"), locatie("5,3")],
-             [locatie("0,4"), locatie("1,4"), locatie("2,4"), locatie("3,4"), locatie("4,4"), locatie("5,4")],
-           ]
+    def __init__(self, name, discription = ""):
+        self.name = name
+        self.discription = discription
+
+        self.north = False
+        self.east = False
+        self.south = False
+        self.west = False
+
+    def setRouteOptions(self, coordinates = []):
+        self.north = coordinates[0]
+
+
+grid_columns = 5
+grid_rows = 4
+
+grid_row = 0
+
+while grid_row <= grid_rows:
+    grid_column = 0
+
+    while grid_column <= grid_columns:
+        location(str(grid_row) + ',' + str(grid_column))
+        grid_column += 1
+
+    grid_row += 1
+
+#locations voor het spel
+locations = [
+    [
+        location("0,0", "Startpunt"),
+        location("1,0", "Stap 1"),
+        location("2,0"),
+        location("3,0"),
+        location("4,0"),
+        location("5,0")
+    ],
+    [
+        location("0,1"),
+        location("1,1"),
+        location("2,1"),
+        location("3,1"),
+        location("4,1"),
+        location("5,1")
+    ],
+    [
+        location("0,2"),
+        location("1,2"),
+        location("2,2"),
+        location("3,2"),
+        location("4,2"),
+        location("5,2")
+    ],
+    [
+        location("0,3"),
+        location("1,3"),
+        location("2,3"),
+        location("3,3"),
+        location("4,3"),
+        location("5,3")
+    ],
+    [
+        location("0,4"),
+        location("1,4"),
+        location("2,4"),
+        location("3,4"),
+        location("4,4"),
+        location("5,4")
+    ],
+]
 
 player_data = {
     "name": "",
-    "location": locaties[0][0],
+    "location": locations[0][0],
     "location_name": "starting room",
 }
-
-
-#class locatie:
-#    locatie = player_data["location"]
-
-    #def __init__(self, n, e, s, w):
-     #   self.n = north
-      #  self.e = east
-       # self.s = south
-        #self.w = west
-
-
-
-
 
 #wordt aan het begin laten zien en elke keer als de speler "help" typt
 def help_file():
@@ -50,7 +101,7 @@ def help_file():
     time.sleep(1)
     print("You can only use 'n', 'e', 's' and 'w' to choose a direction.")
     time.sleep(1)
-    print("If you want to quit the game enter 'quit'")
+    print("If you want to quit the game enter 'q'")
     time.sleep(1)
     print("If you want to pick up an or drop an item, type in the name of the tool.")
     time.sleep(1)
@@ -125,15 +176,15 @@ def game():
             else:
                 current_y = current_y - 1
 
-        (player_data["location"]) = locaties[current_y][current_x]
+        (player_data["location"]) = locations[current_y][current_x]
         game()
     elif control == "help":
         help_file()
         game()
     elif control == "location":
-        print(str(player_data["location"].naam))
+        print(str(player_data["location"].name))
         game()
-    elif control == "quit":
+    elif control == "q":
         quit = input("Are you sure you want to stop?")
         quit = quit.lower()
         if quit == "yes":
@@ -145,6 +196,6 @@ def game():
         game()
 game()
 
-def locaties():
+def locations():
     current_location = (player_data["location"])
     #if current_location ==
