@@ -8,6 +8,7 @@ class location:
     door = False
 
     def __init__(self, name, discription = ""):
+        self.items = []
         self.name = name
         self.discription = discription
 
@@ -43,8 +44,7 @@ class location:
         self.items = items
 
     def get_items(self):
-        seperator = ", "
-        return seperator.join(self.items)
+        return self.items
 
 # here we define the grid
 grid_columns = 5 # maximum amount of columns per row
@@ -81,9 +81,11 @@ locations[4][3].set_coordinates(False, True, False, True)
 locations[4][4].set_coordinates(False, True, False, True)
 locations[4][5].set_coordinates(False, False, False, True)
 
-locations[3][1].add_item("Key") # Key for the door
+locations[1][0].set_coordinates(False, True, False, True)
+locations[2][0].set_coordinates(False, False, False, True)
 
-#locations voor het spel
+locations[2][0].add_item("Key") # Key for the door
+
 
 
 player_data = {
@@ -105,7 +107,7 @@ def help_file():
     time.sleep(1)
     print("If you need a description where you are enter 'location'.")
     time.sleep(1)
-    print("If you want to know which directions you can go type 'direction'.")
+    print("If you want to know which directions you can go type 'directions'.")
     time.sleep(1)
     print("To see this introduction again type 'help'.")
     time.sleep(1)
@@ -145,9 +147,10 @@ current_x = 0
 
 min_x = 0
 min_y = 0
+inventory = []
 
 def game():
-    control = input("Where do you want to go?")
+    control = input("What do you want to do?")
     control = control.lower()
 
     global current_x
@@ -156,7 +159,7 @@ def game():
     global grid_columns
     global grid_rows
 
-    inventory = []
+    global inventory
 
     if control in location_controls:
         if control == "n":
@@ -185,10 +188,14 @@ def game():
             else:
                 current_x = current_x - 1
 
-        (player_data["location"]) = locations[current_y][current_x]
+        player_data["location"] = locations[current_y][current_x]
 
         location_items = player_data["location"].get_items()
-
+        if len(location_items) > 0:
+            for item in location_items:
+                inventory.append(item)
+            seperator = ", "
+            print("You found the following item(s): " + seperator.join(location_items))
 
         game()
     elif control == "help":
@@ -205,8 +212,12 @@ def game():
             print("You can go " + directions + " from here")
         game()
     elif control == "inventory":
-            print("You found the following item(s): " + location_items)
-            inventory.append(location_items)
+        if len(inventory) > 0:
+            seperator = ", "
+            print("You found the following item(s): " + seperator.join(inventory))
+        else:
+            print("You have no items in your inventory")
+        game()
     elif control == "q":
         quit = input("Are you sure you want to stop?")
         quit = quit.lower()
