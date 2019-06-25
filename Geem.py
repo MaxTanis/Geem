@@ -2,20 +2,26 @@ import time
 
 class location:
     name = ""
-    discription = ""
+    description = ""
 
     items = []
     door = False
 
-    def __init__(self, name, discription = ""):
+    def __init__(self, name, description = ""):
         self.items = []
         self.name = name
-        self.discription = discription
+        self.description = description
 
         self.north = False
         self.east = False
         self.south = False
         self.west = False
+
+    def add_description(self, description):
+        self.description = description
+
+    def get_description(self):
+        return self.description
 
     def set_coordinates(self, north = False, east = False, south = False, west = False):
         self.north = north
@@ -46,6 +52,7 @@ class location:
     def get_items(self):
         return self.items
 
+    def create_map
 # here we define the grid
 grid_columns = 5 # maximum amount of columns per row
 grid_rows = 4 # maximum amount of rows
@@ -81,11 +88,30 @@ locations[4][3].set_coordinates(False, True, False, True)
 locations[4][4].set_coordinates(False, True, False, True)
 locations[4][5].set_coordinates(False, False, False, True)
 
-locations[1][0].set_coordinates(False, True, False, True)
-locations[2][0].set_coordinates(False, False, False, True)
+locations[0][1].set_coordinates(False, True, False, True)
+locations[0][2].set_coordinates(False, False, False, True)
 
-locations[2][0].add_item("Key") # Key for the door
+locations[0][2].add_item("Key") # Key for the door
 
+locations[0][0].add_description("north of east")
+locations[1][0].add_description("north or south")
+locations[2][0].add_description("north or south")
+locations[3][0].add_description("east or south")
+locations[3][1].add_description("east or west")
+locations[3][2].add_description("south or west")
+locations[2][2].add_description("north or south")
+locations[1][2].add_description("north or east")
+locations[1][3].add_description("east or west")
+locations[1][4].add_description("west or north")
+locations[2][4].add_description("south or west")
+locations[2][3].add_description("north or west")
+locations[3][3].add_description("north or south")
+locations[4][3].add_description("east or south")
+locations[4][4].add_description("east or west")
+locations[4][5].add_description("this is the end")
+
+locations[0][1].add_description("east or west")
+locations[0][2].add_description("west only")
 
 
 player_data = {
@@ -121,7 +147,7 @@ def help_file():
 print("Welcome to the game.")
 time.sleep(1)
 def introduction ():
-    name = input("What is your name?: ")
+    name = input("What is your name?: \n")
     if len(name) < 1:
         print("Please enter a name.")
         introduction()
@@ -150,7 +176,7 @@ min_y = 0
 inventory = []
 
 def game():
-    control = input("What do you want to do?")
+    control = input("\nWhat do you want to do? \n")
     control = control.lower()
 
     global current_x
@@ -189,13 +215,18 @@ def game():
                 current_x = current_x - 1
 
         player_data["location"] = locations[current_y][current_x]
-
+        description = player_data["location"].get_description()
+        if description != "":
+            print("You can go " + (str(description)))
         location_items = player_data["location"].get_items()
         if len(location_items) > 0:
             for item in location_items:
                 inventory.append(item)
             seperator = ", "
             print("You found the following item(s): " + seperator.join(location_items))
+
+        # player_data["location"].get_description != "":
+         #   print
 
         game()
     elif control == "help":
