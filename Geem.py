@@ -65,7 +65,23 @@ while grid_row <= grid_rows:
 
 # here we define the route that the player can use
 locations[0][0].set_coordinates(True, True)
-locations[0][1].add_item("Key")
+locations[1][0].set_coordinates(True, False, True)
+locations[2][0].set_coordinates(True, False, True)
+locations[3][0].set_coordinates(False, True, True)
+locations[3][1].set_coordinates(False, True, False, True)
+locations[3][2].set_coordinates(False, False, True, True)
+locations[2][2].set_coordinates(True, False, True)
+locations[1][2].set_coordinates(True, True)
+locations[1][3].set_coordinates(False, True, False, True)
+locations[1][4].set_coordinates(True, False, False, True)
+locations[2][4].set_coordinates(False, False, True, True)
+locations[2][3].set_coordinates(True, True)
+locations[3][3].set_coordinates(True, False, True)
+locations[4][3].set_coordinates(False, True, False, True)
+locations[4][4].set_coordinates(False, True, False, True)
+locations[4][5].set_coordinates(False, False, False, True)
+
+locations[3][1].add_item("Key") # Key for the door
 
 #locations voor het spel
 
@@ -88,6 +104,8 @@ def help_file():
     print("If you want to pick up an or drop an item, type in the name of the tool.")
     time.sleep(1)
     print("If you need a description where you are enter 'location'.")
+    time.sleep(1)
+    print("If you want to know which directions you can go type 'direction'.")
     time.sleep(1)
     print("To see this introduction again type 'help'.")
     time.sleep(1)
@@ -137,7 +155,8 @@ def game():
 
     global grid_columns
     global grid_rows
-    global inventory = []
+
+    inventory = []
 
     if control in location_controls:
         if control == "n":
@@ -148,30 +167,28 @@ def game():
             else:
                 current_y = current_y + 1
         elif control == "e":
-            if current_x == grid_columns:
+            if current_x == grid_columns or player_data["location"].east == False:
                location_error("east")
                game()
             else:
                 current_x = current_x + 1
         elif control == "s":
-            if current_y == min_y:
+            if current_y == min_y or player_data["location"].south == False:
                 location_error("south")
                 game()
             else:
                 current_y = current_y - 1
         elif control == "w":
-            if current_x == min_x:
+            if current_x == min_x or player_data["location"].west == False:
                 location_error("west")
                 game()
             else:
                 current_x = current_x - 1
 
-        (player_data["location"]) = locations[current_x][current_y]
+        (player_data["location"]) = locations[current_y][current_x]
 
         location_items = player_data["location"].get_items()
-        if location_items != "":
-            print("You found the following item(s): " + location_items)
-            inventory.append(location_items)
+
 
         game()
     elif control == "help":
@@ -188,7 +205,8 @@ def game():
             print("You can go " + directions + " from here")
         game()
     elif control == "inventory":
-        print()
+            print("You found the following item(s): " + location_items)
+            inventory.append(location_items)
     elif control == "q":
         quit = input("Are you sure you want to stop?")
         quit = quit.lower()
@@ -200,7 +218,3 @@ def game():
         print("That is not an option")
         game()
 game()
-
-def locations():
-    current_location = (player_data["location"])
-    #if current_location ==
