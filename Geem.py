@@ -1,21 +1,11 @@
 import time
 
-current_y = 0
-current_x = 0
-
-max_x = 5
-max_y = 4
-min_x = 0
-min_y = 0
-
 class location:
     name = ""
     discription = ""
 
-    north = False
-    east = False
-    south = False
-    west = False
+    items = []
+    door = False
 
     def __init__(self, name, discription = ""):
         self.name = name
@@ -26,67 +16,59 @@ class location:
         self.south = False
         self.west = False
 
-    def setRouteOptions(self, coordinates = []):
-        self.north = coordinates[0]
+    def set_coordinates(self, north = False, east = False, south = False, west = False):
+        self.north = north
+        self.east = east
+        self.south = south
+        self.west = west
 
+    def get_coordinates(self):
+        coordinates = []
+        seperator = ", "
+        if self.north == True:
+            coordinates.append('North')
+        if self.east == True:
+            coordinates.append('East')
+        if self.south == True:
+            coordinates.append('South')
+        if self.west == True:
+            coordinates.append('West')
 
-grid_columns = 5
-grid_rows = 4
+        return seperator.join(coordinates)
+
+    def add_item(self, item):
+        self.items.append(item)
+
+    def set_items(self, items):
+        self.items = items
+
+    def get_items(self):
+        seperator = ", "
+        return seperator.join(self.items)
+
+# here we define the grid
+grid_columns = 5 # maximum amount of columns per row
+grid_rows = 4 # maximum amount of rows
 
 grid_row = 0
-
+locations = []
 while grid_row <= grid_rows:
     grid_column = 0
-
+    row_locations = []
     while grid_column <= grid_columns:
-        location(str(grid_row) + ',' + str(grid_column))
+        row_locations.append(location(str(grid_row) + ',' + str(grid_column)))
         grid_column += 1
+
+    locations.append(row_locations)
 
     grid_row += 1
 
+# here we define the route that the player can use
+locations[0][0].set_coordinates(True, True)
+locations[0][1].add_item("Key")
+
 #locations voor het spel
-locations = [
-    [
-        location("0,0", "Startpunt"),
-        location("1,0", "Stap 1"),
-        location("2,0"),
-        location("3,0"),
-        location("4,0"),
-        location("5,0")
-    ],
-    [
-        location("0,1"),
-        location("1,1"),
-        location("2,1"),
-        location("3,1"),
-        location("4,1"),
-        location("5,1")
-    ],
-    [
-        location("0,2"),
-        location("1,2"),
-        location("2,2"),
-        location("3,2"),
-        location("4,2"),
-        location("5,2")
-    ],
-    [
-        location("0,3"),
-        location("1,3"),
-        location("2,3"),
-        location("3,3"),
-        location("4,3"),
-        location("5,3")
-    ],
-    [
-        location("0,4"),
-        location("1,4"),
-        location("2,4"),
-        location("3,4"),
-        location("4,4"),
-        location("5,4")
-    ],
-]
+
 
 player_data = {
     "name": "",
@@ -140,25 +122,33 @@ location_controls = ["n", "e", "s", "w"]
 def location_error(location):
     print("You cannot go " + location + " from here")
 
+current_y = 0
+current_x = 0
+
+min_x = 0
+min_y = 0
+
 def game():
     control = input("Where do you want to go?")
     control = control.lower()
 
     global current_x
     global current_y
-    global max_y
-    global max_x
+
+    global grid_columns
+    global grid_rows
+    global inventory = []
 
     if control in location_controls:
         if control == "n":
             # controleer of we niet tegen de grens zijn aangelopen
-            if current_y == max_y:
+            if current_y == grid_rows or player_data["location"].north == False:
                 location_error("north")
                 game()
             else:
                 current_y = current_y + 1
         elif control == "e":
-            if current_x == max_x:
+            if current_x == grid_columns:
                location_error("east")
                game()
             else:
@@ -168,15 +158,21 @@ def game():
                 location_error("south")
                 game()
             else:
-                current_x = current_x - 1
+                current_y = current_y - 1
         elif control == "w":
             if current_x == min_x:
                 location_error("west")
                 game()
             else:
-                current_y = current_y - 1
+                current_x = current_x - 1
 
-        (player_data["location"]) = locations[current_y][current_x]
+        (player_data["location"]) = locations[current_x][current_y]
+
+        location_items = player_data["location"].get_items()
+        if location_items != "":
+            print("You found the following item(s): " + location_items)
+            inventory.append(location_items)
+
         game()
     elif control == "help":
         help_file()
@@ -184,6 +180,15 @@ def game():
     elif control == "location":
         print(str(player_data["location"].name))
         game()
+    elif control == "directions":
+        directions = str(player_data["location"].get_coordinates())
+        if directions == "":
+            print("There is no way to go")
+        else:
+            print("You can go " + directions + " from here")
+        game()
+    elif control == "inventory":
+        print()
     elif control == "q":
         quit = input("Are you sure you want to stop?")
         quit = quit.lower()
