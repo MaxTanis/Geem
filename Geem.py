@@ -52,13 +52,13 @@ class location:
     def get_items(self):
         return self.items
 
-    def create_map
 # here we define the grid
 grid_columns = 5 # maximum amount of columns per row
 grid_rows = 4 # maximum amount of rows
 
 grid_row = 0
 locations = []
+
 while grid_row <= grid_rows:
     grid_column = 0
     row_locations = []
@@ -69,6 +69,18 @@ while grid_row <= grid_rows:
     locations.append(row_locations)
 
     grid_row += 1
+
+    map = []
+
+    def create_map(place):
+        for i in range(grid_rows):
+            place.append(["O"] * (grid_rows))
+
+    def list_to_string(alist):
+        for i in alist:
+            print(" ".join(i))
+
+    create_map(map)
 
 # here we define the route that the player can use
 locations[0][0].set_coordinates(True, True)
@@ -137,6 +149,8 @@ def help_file():
     time.sleep(1)
     print("To see this introduction again type 'help'.")
     time.sleep(1)
+    print("If you want the map to be showed enter 'map'.")
+    time.sleep(1)
     print("When you are ready, please press ENTER.")
     print("--------------------------")
     input()
@@ -170,6 +184,8 @@ def location_error(location):
 
 current_y = 0
 current_x = 0
+last_y = 0
+last_x = 0
 
 min_x = 0
 min_y = 0
@@ -181,6 +197,8 @@ def game():
 
     global current_x
     global current_y
+    global last_x
+    global last_y
 
     global grid_columns
     global grid_rows
@@ -248,6 +266,13 @@ def game():
             print("You found the following item(s): " + seperator.join(inventory))
         else:
             print("You have no items in your inventory")
+        game()
+    elif control == "map":
+        map[last_y][last_x] = "O"
+        map[current_y][current_x] = "X"
+        last_x = current_x
+        last_y = current_y
+        list_to_string(map)
         game()
     elif control == "q":
         quit = input("Are you sure you want to stop?")
