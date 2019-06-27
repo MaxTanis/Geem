@@ -1,3 +1,4 @@
+
 import time
 
 
@@ -9,17 +10,27 @@ class location:
     items = []
     door = False
 
+    start = False
+    end = False
+    current = False
+    visited = False
+
     def __init__(self, name, description = ""):
         self.items = []
         self.name = name
         self.description = description
 
-        self.door = False
+        self.door = False # is er een deur?
 
-        self.north = False
-        self.east = False
-        self.south = False
-        self.west = False
+        self.north = False # boolean of de speler naar het noorden kan
+        self.east = False # boolean of de speler naar het oosten kan
+        self.south = False # boolean of de speler naar het zuiden kan
+        self.west = False # boolean of de speler naar het westen kan
+
+        self.start = False # startpunt
+        self.end = False # eindpunt
+        self.current = False # huidige kamer
+        self.visited = False # doorlopen kamer
 
     def add_description(self, description):
         self.description = description
@@ -59,6 +70,21 @@ class location:
     def set_has_door(self, has_door):
         self.door = has_door
 
+    def set_is_start(self, is_start):
+        self.start = is_start
+
+
+    def set_is_end(self, is_end):
+        self.end = is_end
+
+
+    def set_is_current(self, is_current):
+        self.current = is_current
+
+
+    def set_is_visited(self, is_visited):
+        self.visited = is_visited
+
 # hier maken wij het rooster voor het spel
 grid_columns = 5 # maximum aantal kolommen
 grid_rows = 4 # maximum aantal rijen
@@ -87,14 +113,14 @@ locations[3][1].set_coordinates(False, True, False, True)
 locations[3][2].set_coordinates(False, False, True, True)
 locations[2][2].set_coordinates(True, False, True)
 locations[1][2].set_coordinates(True, True, True)
-locations[1][3].set_coordinates(True, True, True, True)
+locations[1][3].set_coordinates(False, True, False, True)
 locations[1][4].set_coordinates(True, False, False, True)
 locations[2][4].set_coordinates(False, True, True, True)
 locations[2][3].set_coordinates(True, True)
 locations[3][3].set_coordinates(True, False, True)
 locations[4][3].set_coordinates(False, True, False, True)
 locations[4][4].set_coordinates(False, True, False, True)
-locations[4][5].set_coordinates(False, False, False, True)
+locations[4][5].set_coordinates(False, False, False, False)
 
 locations[2][1].set_coordinates(True)
 locations[0][1].set_coordinates(True, False, False, True)
@@ -111,8 +137,9 @@ locations[0][0].add_description("You are in the middle of a desert")
 locations[1][0].add_description("You see some light in the far North")
 locations[2][0].add_description("You have entered a village.")
 locations[3][0].add_description("You are now in an abandoned house.")
-locations[3][1].door=True
-locations[3][2].add_description("You have opened to door, there is a pad going South.")
+locations[3][1].door = True
+locations[3][1].add_description("You are now standing outside the house. You see a pad on your East")
+locations[3][2].add_description("There is a pad heading towards the South. Follow it")
 locations[2][2].add_description("You have walked for hours, but the pad goes on...")
 locations[1][2].add_description("You are standing in front of a dark wood.")
 locations[1][3].add_description("You hear some noises on your East.")
@@ -122,7 +149,8 @@ locations[2][3].add_description("There is a small city in the far North.")
 locations[3][3].add_description("It's a long walk but you're almost there.")
 locations[4][3].add_description("You are in the middle of the city now.")
 locations[4][4].add_description("You see many people on your right, maybe you could ask them where you are.")
-locations[4][5].add_description("The people told you where you are and helped you to go home.")
+locations[4][5].add_description("The people told you where you are and helped you to go home.\nYou have now completed the game!\nIf you want to quit enter 'q'.")
+
 
 locations[2][1].add_description("There is a closet. Nothing in here. Go back...")
 locations[0][1].add_description("There is something on your North, go there.")
@@ -137,6 +165,10 @@ player_data = {
     "location": locations[0][0],
     "location_name": "starting room",
 }
+locations[0][0].set_is_current(True) # stel de huidige kamer in
+locations[0][0].set_is_start(True) # stel de start kamer in
+locations[0][0].set_is_visited(True) # stel gelijk in dat de eerste kamer is doorlopen
+locations[4][5].set_is_end(True) # stel de eindkamer in
 
 #wordt aan het begin laten zien en elke keer als de speler "help" typt
 def help_file():
@@ -189,6 +221,58 @@ location_controls = ["n", "e", "s", "w"]
 def location_error(location):
     print("You cannot go " + location + " from here")
 
+# functie waarmee de lijst met kamers wordt omgezet naar een kaart
+def list_to_map(map_list):
+    map_string = ''
+
+    column_string = '+-----'  # dit tonen we boven elke cel
+    column_string_end = '+'  # dit tonen we aan het eind van de regel
+
+    column_empty = '     '  # lege cel
+    column_current = '  X  '  # huidige cel
+    column_visited = '  *  ' # doorlopen cel
+    column_start = '  S  '  # start cel
+    column_end = '  F  '  # eind cel
+
+    for row_i in range(len(map_list)):
+        row_string = ''
+
+        col_i = 0
+        while col_i < len(map_list[row_i]):
+            row_string += column_string
+            col_i += 1
+        row_string += column_string_end + '\n'  # we beginnen elke regel met een +----+ regel
+
+        # dan gaan we voor alle kolommen bepalen welke tekst we er in moeten tonen
+        for column_i in range(len(map_list[row_i])):
+            current_column_string = column_empty  # standaard tonen we de lege cel
+            if map_list[grid_rows-row_i][column_i].start == True:
+                # als de cel waar we op zitten de startcel is, tonen we de bijbehorende tekst
+                current_column_string = column_start
+            elif map_list[grid_rows-row_i][column_i].current == True:
+                # als de cel waar we op zitten de huidige is, tonen we de bijbehorende tekst
+                current_column_string = column_current
+            elif map_list[grid_rows-row_i][column_i].end == True:
+                # als de cel waar we op zitten het eind is, tonen we de bijbehorende tekst
+                current_column_string = column_end
+            elif map_list[grid_rows-row_i][column_i].visited == True:
+                # als de cel waar we op zitten een doorlopen cel is, tonen we de bijbehorende tekst
+                current_column_string = column_visited
+            row_string += '|' + current_column_string  # we eindigen altijd met ee | om de regel af te sluiten
+        row_string += '|'
+
+        # als laatste maken we ook een onderkant van de regel
+        if row_i == (len(map_list) - 1):
+            row_string += '\n'
+            col_i = 0
+            while col_i < len(map_list[row_i]):
+                row_string += column_string
+                col_i += 1
+            row_string += column_string_end + '\n'
+
+        map_string += row_string + '\n'  # vul de tekst van de complete kaart aan
+    return map_string  # geef de tekstuele vorm van de kaart terug
+
 current_y = 0
 current_x = 0
 last_y = 0
@@ -201,7 +285,7 @@ inventory = []
 # hoofd spel
 def game():
     control = input("\nWhat do you want to do? \n")
-    control = control.lower()
+    control = control.lower() # zorgt ervoor dat alles in kleine letters is
 
     global current_x
     global current_y
@@ -214,6 +298,9 @@ def game():
     global inventory
     # n e s w
     if control in location_controls:
+        old_x = current_x
+        old_y = current_y
+
         if control == "n":
             # controleer of we niet tegen de grens zijn aangelopen
             if current_y == grid_rows or player_data["location"].north == False:
@@ -239,22 +326,32 @@ def game():
                 game()
             else:
                 current_x = current_x - 1
-
         # als de deur een kamer heeft wordt dit getoond
         if locations[current_y][current_x].door == True:
             print("This room has a door which blocks the entrance")
             # in de inventory kijken van de speler of er een 'key' inztit
             for inventory_item in inventory:
                 if inventory_item == "key":
+                    # stel de vorige kamer weer in als huidige, omdat je nog niet verder kan
                     print("You have a key in your inventory, press 'u' to open the door with the key")
+                    current_x = old_x
+                    current_y = old_y
                     game()
                     # the speler heeft nog geen sleutel en moet hem eerst zoeken
             print("You do not have a key to open the door, find it somewhere else.")
+            # stel de vorige kamer weer in als huidige, omdat je nog niet verder kan
+            current_x = old_x
+            current_y = old_y
             game()
-        else:
-            # als er geen deur is kan de speler verder
 
-            player_data["location"] = locations[current_y][current_x]
+        # als er geen deur is kan de speler verder
+
+        player_data["location"].set_is_current(False) # we gaan een kamer verder, dus is dit niet meer de huidige
+        player_data["location"] = locations[current_y][current_x]
+        player_data["location"].set_is_current(True) # dit is nu de huidige kamer geworden
+        player_data["location"].set_is_visited(True) # stel ook in dat deze kamer is doorlopen
+
+        # als er een omschrijving is, tonen we de omschrijving
         description = player_data["location"].get_description()
         if description != "":
             print((str(description)))
@@ -298,7 +395,8 @@ def game():
                 if inventory[inventory_i] == "key":
                     print("You used the key to open the door")
                     del inventory[inventory_i] #  key weg van invertory
-                    player_data["location"].set_has_door(False) #  haalt de deur weg
+                    #player_data["location"].set_has_door(False) #  haalt de deur weg
+                    locations[3][1].set_has_door(False) # haal de deur weg
                     game()
             print("You do not have a key that you can use")
             game()
@@ -306,110 +404,10 @@ def game():
             print("You have no items in your inventory")
         game()
     elif control == "m": # de code voor de map
-        class Location:
-            name = ""
+        print(list_to_map(locations))
 
-            start = False
-            end = False
-            current = False
-            visited = False
-
-            def __init__(self, name):
-                self.name = name
-                self.start = False
-                self.end = False
-                self.current = False
-                self.visited = False
-
-            def set_is_start(self, is_start):
-                self.start = is_start
-
-            def set_is_end(self, is_end):
-                self.end = is_end
-
-            def set_is_current(self, is_current):
-                self.current = is_current
-
-            def set_is_visited(self, is_visited):
-                self.visited = is_visited
-
-        max_y = 4  # maximaal aantal regels, we tellen vanaf 0
-        max_x = 5  # maximaal aantal kolommen, we tellen vanaf 0
-
-        # dit is de array/list die wordt gebruikt voor alle cellen/locaties binnen de landkaart
-        map = []
-
-        row_i = 0  # teller om het regelnummer bij te houden
-
-        # we gaan voor elke regel tot aan het maximaal
-        while row_i <= max_y:
-            row_columns = []
-            column_i = 0
-
-            while column_i <= max_x:
-                row_columns.append(Location(str(row_i) + "-" + str(column_i)))
-                column_i += 1
-
-            row_i += 1
-
-            map.append(row_columns)
-
-        map[0][0].set_is_start(True)  # instellen welke plek de start is
-        map[current_y][current_x].set_is_current(True)  # dit kun je bepalen op het moment dat de game wordt gestart, aangezien het poppetje steeds verplaatst
-        map[4][5].set_is_end(True)  # instellen welke plek het eindpunt is
-
-
-        def list_to_map(map_list):
-            map_string = ''
-
-            column_string = '+-----'  # dit tonen we boven elke cel
-            column_string_end = '+'  # dit tonen we aan het eind van de regel
-
-            column_empty = '     '  # lege cel
-            column_current = '  X  '  # huidige cel
-            column_start = '  S  '  # start cel
-            column_end = '  F  '  # eind cel
-
-            for row_i in range(len(map_list)):
-                row_string = ''
-
-                col_i = 0
-                while col_i < len(map_list[row_i]):
-                    row_string += column_string
-                    col_i += 1
-                row_string += column_string_end + '\n'  # we beginnen elke regel met een +----+ regel
-
-                # dan gaan we voor alle kolommen bepalen welke tekst we er in moeten tonen
-                for column_i in range(len(map_list[row_i])):
-                    current_column_string = column_empty  # standaard tonen we de lege cel
-                    if map_list[max_y-row_i][column_i].start == True:
-                        # als de cel waar we op zitten de startcel is, tonen we de bijbehorende tekst
-                        current_column_string = column_start
-                    elif map_list[max_y-row_i][column_i].current == True:
-                        # als de cel waar we op zitten de huidige is, tonen we de bijbehorende tekst
-                        current_column_string = column_current
-                    elif map_list[max_y-row_i][column_i].end == True:
-                        # als de cel waar we op zitten het eind is, tonen we de bijbehorende tekst
-                        current_column_string = column_end
-                    elif map_list[max_y-row_i][column_i].visited == True:
-                        # als de cel waar we op zitten een doorlopen cel is, tonen we de bijbehorende tekst
-                        current_column_string = column_visited
-                    row_string += '|' + current_column_string  # we eindigen altijd met ee | om de regel af te sluiten
-                row_string += '|'
-
-                # als laatste maken we ook een onderkant van de regel
-                if row_i == (len(map_list) - 1):
-                    row_string += '\n'
-                    col_i = 0
-                    while col_i < len(map_list[row_i]):
-                        row_string += column_string
-                        col_i += 1
-                    row_string += column_string_end + '\n'
-
-                map_string += row_string + '\n'  # vul de tekst van de complete kaart aan
-            return map_string  # geef de tekstuele vorm van de kaart terug
-        print(list_to_map(map))
         print("'S' is the start location")
+        print("'*' is a visited location")
         print("'F' is the last location")
         print("'X' is your current location")
         game()
