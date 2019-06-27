@@ -1,5 +1,7 @@
 import time
 
+
+
 class location:
     name = ""
     description = ""
@@ -153,7 +155,7 @@ def help_file():
     time.sleep(1)
     print("If you want to quit the game enter 'q'")
     time.sleep(1)
-    print("If you want to pick up an or drop an item, type in the name of the tool.")
+    print("If you want to pick up an item enter 'g'. To use it enter 'u'")
     time.sleep(1)
     print("To know what is in your inventory type 'i'")
     time.sleep(1)
@@ -310,11 +312,114 @@ def game():
             print("You have no items in your inventory")
         game()
     elif control == "m":
-        map[last_y][last_x] = "O"
-        map[current_y][current_x] = "X"
-        last_x = current_x
-        last_y = current_y
-        list_to_string(map)
+        class Location:
+            name = ""
+
+            start = False
+            end = False
+            current = False
+            visited = False
+
+            def __init__(self, name):
+                self.name = name
+                self.start = False
+                self.end = False
+                self.current = False
+                self.visited = False
+
+            def set_is_start(self, is_start):
+                self.start = is_start
+
+            def set_is_end(self, is_end):
+                self.end = is_end
+
+            def set_is_current(self, is_current):
+                self.current = is_current
+
+            def set_is_visited(self, is_visited):
+                self.visited = is_visited
+
+        max_y = 4  # maximaal aantal regels, we tellen vanaf 0
+        max_x = 5  # maximaal aantal kolommen, we tellen vanaf 0
+
+        # dit is de array/list die wordt gebruikt voor alle cellen/locaties binnen de landkaart
+        # dit is in het geval van 'Geem' locations[]
+        map = []
+
+        row_i = 0  # teller om het regelnummer bij te houden
+
+        # we gaan voor elke regel tot aan het maximaal
+        while row_i <= max_y:
+            row_columns = []
+            column_i = 0
+
+            while column_i <= max_x:
+                row_columns.append(Location(str(row_i) + "-" + str(column_i)))
+                column_i += 1
+
+            row_i += 1
+
+            map.append(row_columns)
+
+        map[0][0].set_is_start(True)  # instellen welke plek de start is
+        map[current_y][current_x].set_is_current(True)  # dit kun je bepalen op het moment dat de game wordt gestart, aangezien het poppetje steeds verplaatst
+        map[4][5].set_is_end(True)  # instellen welke plek het eindpunt is
+
+
+        def list_to_map(map_list):
+            map_string = ''
+
+            column_string = '+-----'  # dit tonen we boven elke cel
+            column_string_end = '+'  # dit tonen we aan het eind van de regel
+
+            column_empty = '     '  # lege cel
+            column_current = '  X  '  # huidige cel
+            column_start = '  S  '  # start cel
+            column_end = '  F  '  # eind cel
+            column_visited = '  *  '  # doorlopen cel
+
+            for row_i in range(len(map_list)):
+                row_string = ''
+
+                col_i = 0
+                while col_i < len(map_list[row_i]):
+                    row_string += column_string
+                    col_i += 1
+                row_string += column_string_end + '\n'  # we beginnen elke regel met een +----+ regel
+
+                # dan gaan we voor alle kolommen bepalen welke tekst we er in moeten tonen
+                for column_i in range(len(map_list[row_i])):
+                    current_column_string = column_empty  # standaard tonen we de lege cel
+                    if map_list[max_y-row_i][column_i].start == True:
+                        # als de cel waar we op zitten de startcel is, tonen we de bijbehorende tekst
+                        current_column_string = column_start
+                    elif map_list[max_y-row_i][column_i].current == True:
+                        # als de cel waar we op zitten de huidige is, tonen we de bijbehorende tekst
+                        current_column_string = column_current
+                    elif map_list[max_y-row_i][column_i].end == True:
+                        # als de cel waar we op zitten het eind is, tonen we de bijbehorende tekst
+                        current_column_string = column_end
+                    elif map_list[max_y-row_i][column_i].visited == True:
+                        # als de cel waar we op zitten een doorlopen cel is, tonen we de bijbehorende tekst
+                        current_column_string = column_visited
+                    row_string += '|' + current_column_string  # we eindigen altijd met ee | om de regel af te sluiten
+                row_string += '|'
+
+                # als laatste maken we ook een onderkant van de regel
+                if row_i == (len(map_list) - 1):
+                    row_string += '\n'
+                    col_i = 0
+                    while col_i < len(map_list[row_i]):
+                        row_string += column_string
+                        col_i += 1
+                    row_string += column_string_end + '\n'
+
+                map_string += row_string + '\n'  # vul de tekst van de complete kaart aan
+            return map_string  # geef de tekstuele vorm van de kaart terug
+        print(list_to_map(map))
+        print("'S' is the start location")
+        print("'F' is the last location")
+        print("'X' is your current location")
         game()
     elif control == "q":
         quit = input("Are you sure you want to stop?")
