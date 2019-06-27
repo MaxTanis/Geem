@@ -12,6 +12,8 @@ class location:
         self.name = name
         self.description = description
 
+        self.door = False
+
         self.north = False
         self.east = False
         self.south = False
@@ -52,6 +54,9 @@ class location:
     def get_items(self):
         return self.items
 
+    def set_has_door(self, has_door):
+        self.door = has_door
+
 # here we define the grid
 grid_columns = 5 # maximum amount of columns per row
 grid_rows = 4 # maximum amount of rows
@@ -86,7 +91,7 @@ locations[0][0].set_coordinates(True, True)
 locations[1][0].set_coordinates(True, False, True)
 locations[2][0].set_coordinates(True, False, True)
 locations[3][0].set_coordinates(False, True, True)
-locations[3][1].set_coordinates(True, True, True, True)
+locations[3][1].set_coordinates(False, True, False, True)
 locations[3][2].set_coordinates(False, False, True, True)
 locations[2][2].set_coordinates(True, False, True)
 locations[1][2].set_coordinates(True, True, True)
@@ -101,19 +106,19 @@ locations[4][5].set_coordinates(False, False, False, True)
 
 locations[0][1].set_coordinates(True, False, False, True)
 locations[1][1].set_coordinates(False, False, True, False)
-locations[2][1].set_coordinates(True)
-locations[4][1].set_coordinates(False, False, True)
 locations[0][2].set_coordinates(True)
 locations[2][5].set_coordinates(False, False, False, True)
 locations[4][2].set_coordinates(False, True)
+locations[4][0].set_coordinates(False, False, True)
 
 locations[1][1].add_item("Key") # Key for the door
 
+#description per locatie
 locations[0][0].add_description("You are in the middle of a desert")
-locations[1][0].add_description("On your left you see a group of animals, you don't want to go there...")
-locations[2][0].add_description("In front of you, you see some light.")
-locations[3][0].add_description("You have entered a village. You see an abandoned house on your right.")
-locations[3][1].add_description("You are standing in the house. There is a door, a closet and a wall.")
+locations[1][0].add_description("You see some light in the far North")
+locations[2][0].add_description("You have entered a village.")
+locations[3][0].add_description("You are now in an abandoned house.")
+locations[3][1].add_description("")
 locations[3][2].add_description("You have opened to door, there is a pad going South.")
 locations[2][2].add_description("You have walked for hours, but the pad goes on...")
 locations[1][2].add_description("You are standing in front of a dark wood.")
@@ -127,12 +132,11 @@ locations[4][4].add_description("You see many people on your right, maybe you co
 locations[4][5].add_description("The people told you where you are and helped you to go home.")
 
 locations[0][1].add_description("There is something on your North, go there.")
-locations[1][1].add_description("You found a chest, there is a key in it. Would you like to get the key?")
+locations[1][1].add_description("You found a chest, would you like get the items from the chest?")
 locations[0][2].add_description("You are in the middle of a dark wood, you can only go back...")
-locations[4][1].add_description("In front of you in a closet.")
-locations[2][1].add_description("There is a wall, go back.")
 locations[2][5].add_description("You found the stream again, you have to go back...")
 locations[4][2].add_description("There is a supermarket. You bought some food and drinks. You have to go back now")
+locations[4][0].add_description("You are standing in front of a closet. Nothing here...")
 
 player_data = {
     "name": "",
@@ -153,19 +157,17 @@ def help_file():
     time.sleep(1)
     print("To know what is in your inventory type 'i'")
     time.sleep(1)
-    print("If you need a description where you are enter 'location'.")
+    print("If you need a description where you are enter 'l'.")
     time.sleep(1)
-    print("If you want to know which directions you can go type 'directions'.")
+    print("If you want to know which directions you can go type 'd'.")
     time.sleep(1)
-    print("If you want the map to be showed enter 'map'.")
+    print("If you want the map to be showed enter 'm'.")
     time.sleep(1)
-    print("To see this introduction again type 'help'.")
+    print("To see this introduction again type 'h'.")
     time.sleep(1)
     print("When you are ready, please press ENTER.")
     print("--------------------------")
     input()
-
-
 
 
 print("Welcome to the game.")
@@ -242,24 +244,33 @@ def game():
             else:
                 current_x = current_x - 1
 
-        player_data["location"] = locations[current_y][current_x]
+        # if the room has a door, the user needs a key to open it
+        if locations[current_y][current_x].door == True:
+            print("This room has a door which blocks the entrance")
+            # look inside the users inventory to find the key
+            for inventory_item in inventory:
+                if inventory_item == "key":
+                    print("You have a key in your inventory, press 'u' to open the door with the key")
+                    game()
+            # the user has no key and needs to find it first
+            print("You do not have a key to open the door, find it in another room")
+            game()
+        else:
+            # if the room has no door the user can continue
+
+            player_data["location"] = locations[current_y][current_x]
         description = player_data["location"].get_description()
         if description != "":
             print((str(description)))
-        location_items = player_data["location"].get_items()
-        if len(location_items) > 0:
-            for item in location_items:
-                inventory.append(item)
-            seperator = ", "
-            print("You found the following item(s): " + seperator.join(location_items))
         game()
-    elif control == "help":
+    elif control == "h":
         help_file()
         game()
-    elif control == "location":
-        print(str(player_data["location"].name))
+    elif control == "l":
+        description = player_data["location"].get_description()
+        print(str(description))
         game()
-    elif control == "directions":
+    elif control == "d":
         directions = str(player_data["location"].get_coordinates())
         if directions == "":
             print("There is no way to go")
@@ -269,11 +280,36 @@ def game():
     elif control == "i":
         if len(inventory) > 0:
             seperator = ", "
-            print("You found the following item(s): " + seperator.join(inventory))
+            print("The following items are in your inventory: " + seperator.join(inventory))
+            game()
+        else:
+            print("You have no items in your inventory")
+            game()
+    elif control == "g":
+        location_items = player_data["location"].get_items()
+        if len(location_items) > 0:
+            for item in location_items:
+                inventory.append(item)
+            seperator = ", "
+            print("You found the following item(s): " + seperator.join(location_items))
+            player_data["location"].set_items([])  # remove the items from the room
+        else:
+            print("There are no (more) items to pickup")
+        game()
+    elif control == "u":
+        if len(inventory) > 0:
+            for inventory_i in range(len(inventory)):
+                if inventory[inventory_i] == "key":
+                    print("You used the key to open the door")
+                    del inventory[inventory_i] #  remove the key from the inventory
+                    player_data["location"].set_has_door(False) #  remove the door from the room
+                    game()
+            print("You do not have a key that you can use")
+            game()
         else:
             print("You have no items in your inventory")
         game()
-    elif control == "map":
+    elif control == "m":
         map[last_y][last_x] = "O"
         map[current_y][current_x] = "X"
         last_x = current_x
