@@ -71,7 +71,6 @@ while grid_row <= grid_rows:
     grid_row += 1
 
     map = []
-
     def create_map(place):
         for i in range(grid_rows):
             place.append(["O"] * (grid_rows))
@@ -87,44 +86,53 @@ locations[0][0].set_coordinates(True, True)
 locations[1][0].set_coordinates(True, False, True)
 locations[2][0].set_coordinates(True, False, True)
 locations[3][0].set_coordinates(False, True, True)
-locations[3][1].set_coordinates(False, True, False, True)
+locations[3][1].set_coordinates(True, True, True, True)
 locations[3][2].set_coordinates(False, False, True, True)
 locations[2][2].set_coordinates(True, False, True)
-locations[1][2].set_coordinates(True, True)
-locations[1][3].set_coordinates(False, True, False, True)
+locations[1][2].set_coordinates(True, True, True)
+locations[1][3].set_coordinates(True, True, True, True)
 locations[1][4].set_coordinates(True, False, False, True)
-locations[2][4].set_coordinates(False, False, True, True)
+locations[2][4].set_coordinates(False, True, True, True)
 locations[2][3].set_coordinates(True, True)
 locations[3][3].set_coordinates(True, False, True)
 locations[4][3].set_coordinates(False, True, False, True)
 locations[4][4].set_coordinates(False, True, False, True)
 locations[4][5].set_coordinates(False, False, False, True)
 
-locations[0][1].set_coordinates(False, True, False, True)
-locations[0][2].set_coordinates(False, False, False, True)
+locations[0][1].set_coordinates(True, False, False, True)
+locations[1][1].set_coordinates(False, False, True, False)
+locations[2][1].set_coordinates(True)
+locations[4][1].set_coordinates(False, False, True)
+locations[0][2].set_coordinates(True)
+locations[2][5].set_coordinates(False, False, False, True)
+locations[4][2].set_coordinates(False, True)
 
-locations[0][2].add_item("Key") # Key for the door
+locations[1][1].add_item("Key") # Key for the door
 
-locations[0][0].add_description("north of east")
-locations[1][0].add_description("north or south")
-locations[2][0].add_description("north or south")
-locations[3][0].add_description("east or south")
-locations[3][1].add_description("east or west")
-locations[3][2].add_description("south or west")
-locations[2][2].add_description("north or south")
-locations[1][2].add_description("north or east")
-locations[1][3].add_description("east or west")
-locations[1][4].add_description("west or north")
-locations[2][4].add_description("south or west")
-locations[2][3].add_description("north or west")
-locations[3][3].add_description("north or south")
-locations[4][3].add_description("east or south")
-locations[4][4].add_description("east or west")
-locations[4][5].add_description("this is the end")
+locations[0][0].add_description("You are in the middle of a desert")
+locations[1][0].add_description("On your left you see a group of animals, you don't want to go there...")
+locations[2][0].add_description("In front of you, you see some light.")
+locations[3][0].add_description("You have entered a village. You see an abandoned house on your right.")
+locations[3][1].add_description("You are standing in the house. There is a door, a closet and a wall.")
+locations[3][2].add_description("You have opened to door, there is a pad going South.")
+locations[2][2].add_description("You have walked for hours, but the pad goes on...")
+locations[1][2].add_description("You are standing in front of a dark wood.")
+locations[1][3].add_description("You hear some noises on your East.")
+locations[1][4].add_description("You found a stream, but you cannot cross it...")
+locations[2][4].add_description("You see a high mountain in front of you. It would be easier to go around it.")
+locations[2][3].add_description("There is a small city in the far North.")
+locations[3][3].add_description("It's a long walk but you're almost there.")
+locations[4][3].add_description("You are in the middle of the city now.")
+locations[4][4].add_description("You see many people on your right, maybe you could ask them where you are.")
+locations[4][5].add_description("The people told you where you are and helped you to go home.")
 
-locations[0][1].add_description("east or west")
-locations[0][2].add_description("west only")
-
+locations[0][1].add_description("There is something on your North, go there.")
+locations[1][1].add_description("You found a chest, there is a key in it. Would you like to get the key?")
+locations[0][2].add_description("You are in the middle of a dark wood, you can only go back...")
+locations[4][1].add_description("In front of you in a closet.")
+locations[2][1].add_description("There is a wall, go back.")
+locations[2][5].add_description("You found the stream again, you have to go back...")
+locations[4][2].add_description("There is a supermarket. You bought some food and drinks. You have to go back now")
 
 player_data = {
     "name": "",
@@ -143,13 +151,15 @@ def help_file():
     time.sleep(1)
     print("If you want to pick up an or drop an item, type in the name of the tool.")
     time.sleep(1)
+    print("To know what is in your inventory type 'i'")
+    time.sleep(1)
     print("If you need a description where you are enter 'location'.")
     time.sleep(1)
     print("If you want to know which directions you can go type 'directions'.")
     time.sleep(1)
-    print("To see this introduction again type 'help'.")
-    time.sleep(1)
     print("If you want the map to be showed enter 'map'.")
+    time.sleep(1)
+    print("To see this introduction again type 'help'.")
     time.sleep(1)
     print("When you are ready, please press ENTER.")
     print("--------------------------")
@@ -235,17 +245,13 @@ def game():
         player_data["location"] = locations[current_y][current_x]
         description = player_data["location"].get_description()
         if description != "":
-            print("You can go " + (str(description)))
+            print((str(description)))
         location_items = player_data["location"].get_items()
         if len(location_items) > 0:
             for item in location_items:
                 inventory.append(item)
             seperator = ", "
             print("You found the following item(s): " + seperator.join(location_items))
-
-        # player_data["location"].get_description != "":
-         #   print
-
         game()
     elif control == "help":
         help_file()
@@ -260,7 +266,7 @@ def game():
         else:
             print("You can go " + directions + " from here")
         game()
-    elif control == "inventory":
+    elif control == "i":
         if len(inventory) > 0:
             seperator = ", "
             print("You found the following item(s): " + seperator.join(inventory))
@@ -277,9 +283,9 @@ def game():
     elif control == "q":
         quit = input("Are you sure you want to stop?")
         quit = quit.lower()
-        if quit == "yes":
-            exit()
-        if quit == "no":
+        if quit == "yes" or quit =="y":
+            go = False
+        if quit == "no" or quit == "n":
             game()
     else:
         print("That is not an option")
