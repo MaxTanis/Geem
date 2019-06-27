@@ -149,7 +149,7 @@ locations[2][3].add_description("There is a small city in the far North.")
 locations[3][3].add_description("It's a long walk but you're almost there.")
 locations[4][3].add_description("You are in the middle of the city right now.")
 locations[4][4].add_description("You see many people to your right, maybe you could ask them where you are.")
-locations[4][5].add_description("The people told you where you are and helped you to go home.\nYou have now completed the game!\nIf you want to quit enter 'q'.")
+locations[4][5].add_description("")
 
 
 locations[2][1].add_description("There is a closet. Nothing in here. Go back...")
@@ -284,6 +284,10 @@ inventory = []
 
 # hoofd spel
 def game():
+    if player_data["location"].end == True:
+        print("The people helped you where you are. You found your way home and have completed the adventure!")
+        exit()
+
     control = input("\nWhat do you want to do? \n")
     control = control.lower() # zorgt ervoor dat alles in kleine letters is
 
