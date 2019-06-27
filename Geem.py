@@ -59,9 +59,9 @@ class location:
     def set_has_door(self, has_door):
         self.door = has_door
 
-# here we define the grid
-grid_columns = 5 # maximum amount of columns per row
-grid_rows = 4 # maximum amount of rows
+# hier maken wij het rooster voor het spel
+grid_columns = 5 # maximum aantal kolommen
+grid_rows = 4 # maximum aantal rijen
 
 grid_row = 0
 locations = []
@@ -77,18 +77,8 @@ while grid_row <= grid_rows:
 
     grid_row += 1
 
-    map = []
-    def create_map(place):
-        for i in range(grid_rows):
-            place.append(["O"] * (grid_rows))
 
-    def list_to_string(alist):
-        for i in alist:
-            print(" ".join(i))
-
-    create_map(map)
-
-# here we define the route that the player can use
+# hier geven we de route aan die speler alleen kan lopen
 locations[0][0].set_coordinates(True, True)
 locations[1][0].set_coordinates(True, False, True)
 locations[2][0].set_coordinates(True, False, True)
@@ -106,6 +96,7 @@ locations[4][3].set_coordinates(False, True, False, True)
 locations[4][4].set_coordinates(False, True, False, True)
 locations[4][5].set_coordinates(False, False, False, True)
 
+locations[2][1].set_coordinates(True)
 locations[0][1].set_coordinates(True, False, False, True)
 locations[1][1].set_coordinates(False, False, True, False)
 locations[0][2].set_coordinates(True)
@@ -113,14 +104,14 @@ locations[2][5].set_coordinates(False, False, False, True)
 locations[4][2].set_coordinates(False, True)
 locations[4][0].set_coordinates(False, False, True)
 
-locations[1][1].add_item("Key") # Key for the door
+locations[1][1].add_item("key") # Key voor de deur
 
 #description per locatie
 locations[0][0].add_description("You are in the middle of a desert")
 locations[1][0].add_description("You see some light in the far North")
 locations[2][0].add_description("You have entered a village.")
 locations[3][0].add_description("You are now in an abandoned house.")
-locations[3][1].add_description("")
+locations[3][1].door=True
 locations[3][2].add_description("You have opened to door, there is a pad going South.")
 locations[2][2].add_description("You have walked for hours, but the pad goes on...")
 locations[1][2].add_description("You are standing in front of a dark wood.")
@@ -133,6 +124,7 @@ locations[4][3].add_description("You are in the middle of the city now.")
 locations[4][4].add_description("You see many people on your right, maybe you could ask them where you are.")
 locations[4][5].add_description("The people told you where you are and helped you to go home.")
 
+locations[2][1].add_description("There is a closet. Nothing in here. Go back...")
 locations[0][1].add_description("There is something on your North, go there.")
 locations[1][1].add_description("You found a chest, would you like get the items from the chest?")
 locations[0][2].add_description("You are in the middle of a dark wood, you can only go back...")
@@ -171,7 +163,7 @@ def help_file():
     print("--------------------------")
     input()
 
-
+# introductie van het spel
 print("Welcome to the game.")
 time.sleep(1)
 def introduction ():
@@ -193,6 +185,7 @@ print("You can go to each direction, however not all directions are good options
 
 location_controls = ["n", "e", "s", "w"]
 
+# wordt laten zien als de speler een locatie opwilt die niet kan
 def location_error(location):
     print("You cannot go " + location + " from here")
 
@@ -205,6 +198,7 @@ min_x = 0
 min_y = 0
 inventory = []
 
+# hoofd spel
 def game():
     control = input("\nWhat do you want to do? \n")
     control = control.lower()
@@ -218,7 +212,7 @@ def game():
     global grid_rows
 
     global inventory
-
+    # n e s w
     if control in location_controls:
         if control == "n":
             # controleer of we niet tegen de grens zijn aangelopen
@@ -246,29 +240,29 @@ def game():
             else:
                 current_x = current_x - 1
 
-        # if the room has a door, the user needs a key to open it
+        # als de deur een kamer heeft wordt dit getoond
         if locations[current_y][current_x].door == True:
             print("This room has a door which blocks the entrance")
-            # look inside the users inventory to find the key
+            # in de inventory kijken van de speler of er een 'key' inztit
             for inventory_item in inventory:
                 if inventory_item == "key":
                     print("You have a key in your inventory, press 'u' to open the door with the key")
                     game()
-            # the user has no key and needs to find it first
-            print("You do not have a key to open the door, find it in another room")
+                    # the speler heeft nog geen sleutel en moet hem eerst zoeken
+            print("You do not have a key to open the door, find it somewhere else.")
             game()
         else:
-            # if the room has no door the user can continue
+            # als er geen deur is kan de speler verder
 
             player_data["location"] = locations[current_y][current_x]
         description = player_data["location"].get_description()
         if description != "":
             print((str(description)))
         game()
-    elif control == "h":
+    elif control == "h": # help file die aan het begin ook is laten zien
         help_file()
         game()
-    elif control == "l":
+    elif control == "l": # locatie met description
         description = player_data["location"].get_description()
         print(str(description))
         game()
@@ -279,7 +273,7 @@ def game():
         else:
             print("You can go " + directions + " from here")
         game()
-    elif control == "i":
+    elif control == "i": # inventory van de speler
         if len(inventory) > 0:
             seperator = ", "
             print("The following items are in your inventory: " + seperator.join(inventory))
@@ -287,7 +281,7 @@ def game():
         else:
             print("You have no items in your inventory")
             game()
-    elif control == "g":
+    elif control == "g": # als de speler een item wilt oppakken
         location_items = player_data["location"].get_items()
         if len(location_items) > 0:
             for item in location_items:
@@ -298,20 +292,20 @@ def game():
         else:
             print("There are no (more) items to pickup")
         game()
-    elif control == "u":
+    elif control == "u": # als de speler een item wilt gebruiken
         if len(inventory) > 0:
             for inventory_i in range(len(inventory)):
                 if inventory[inventory_i] == "key":
                     print("You used the key to open the door")
-                    del inventory[inventory_i] #  remove the key from the inventory
-                    player_data["location"].set_has_door(False) #  remove the door from the room
+                    del inventory[inventory_i] #  key weg van invertory
+                    player_data["location"].set_has_door(False) #  haalt de deur weg
                     game()
             print("You do not have a key that you can use")
             game()
         else:
             print("You have no items in your inventory")
         game()
-    elif control == "m":
+    elif control == "m": # de code voor de map
         class Location:
             name = ""
 
@@ -343,7 +337,6 @@ def game():
         max_x = 5  # maximaal aantal kolommen, we tellen vanaf 0
 
         # dit is de array/list die wordt gebruikt voor alle cellen/locaties binnen de landkaart
-        # dit is in het geval van 'Geem' locations[]
         map = []
 
         row_i = 0  # teller om het regelnummer bij te houden
@@ -376,7 +369,6 @@ def game():
             column_current = '  X  '  # huidige cel
             column_start = '  S  '  # start cel
             column_end = '  F  '  # eind cel
-            column_visited = '  *  '  # doorlopen cel
 
             for row_i in range(len(map_list)):
                 row_string = ''
